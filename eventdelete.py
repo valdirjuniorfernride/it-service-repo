@@ -34,6 +34,5 @@ for event_id in event_ids:
         if result.returncode == 0:
             print("  Successfully deleted event.")
         else:
-            print(f"  Error deleting event: {event_id}")
             print(result.stderr.strip())
 
