@@ -5,30 +5,27 @@
   become_method: sudo
   become_user: root
   vars:
-    jumpcloud_key: "4234dc7eca06a138c9891acc7f40364bc82e149c"
+    jumpcloud_key: 4234dc7eca06a138c9891acc7f40364bc82e149c
   tasks:
-
-  - name: Update APT package index
-    apt:
-      update_cache: yes
-
-  - name: Update resolv.conf to use 10.0.87.4
-    lineinfile:
-      path: /etc/resolv.conf
-      regexp: '^nameserver'
-      line: 'nameserver 10.0.87.4'
-      state: present
-      
-tasks:
-  - name: Install curl package
+    - name: Update APT package index
+      apt:
+        update_cache: yes
+    - name: Update resolv.conf to use 10.0.87.4
+      lineinfile:
+        path: /etc/resolv.conf
+        regexp: ^nameserver
+        line: nameserver 10.0.87.4
+        state: present
+    - name: Install curl package
       action: apt pkg='curl' state=installed
       when: "'$ansible_pkg_mgr' == 'apt'"
-  - name: Check if JumpCloud is already installed
+    - name: Check if JumpCloud is already installed
       shell: "[ -d /opt/jc ] && echo 'Found' || echo ''"
       register: jc_installed
-  - name: Update time
-      shell: "ntpdate -u pool.ntp.org"
-      when: "not jc_installed.stdout"
-  - name: Install JumpCloud
-      shell: "curl --header 'x-connect-key: {{ jumpcloud_key }}' https://kickstart.jumpcloud.com/Kickstart | sudo bash"
-      when: "not jc_installed.stdout"
+    - name: Update time
+      shell: ntpdate -u pool.ntp.org
+      when: not jc_installed.stdout
+    - name: Install JumpCloud
+      shell: "curl --header 'x-connect-key: {{ jumpcloud_key }}'
+        https://kickstart.jumpcloud.com/Kickstart | sudo bash"
+      when: not jc_installed.stdout
