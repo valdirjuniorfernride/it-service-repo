@@ -18,9 +18,8 @@
       regexp: '^nameserver'
       line: 'nameserver 10.0.87.4'
       state: present
-
-  - name: Install JumpCloud agent
-    tasks:
+      
+tasks:
   - name: Install curl package
       action: apt pkg='curl' state=installed
       when: "'$ansible_pkg_mgr' == 'apt'"
