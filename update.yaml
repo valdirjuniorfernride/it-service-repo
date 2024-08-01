@@ -1,9 +1,42 @@
-- hosts: ITWorkstation
-  become: true
-  become_user: it-services
+---
+- name: Update and Upgrade Ubuntu, update resolv.conf, and install JumpCloud Agent
+  hosts: all
+  become: yes
+  vars:
+    jumpcloud_key: "4234dc7eca06a138c9891acc7f40364bc82e149c"
   tasks:
-    - name: Update apt repo and cache on all Debian/Ubuntu boxes
-      apt: update_cache=yes force_apt_get=yes cache_valid_time=3600
 
-    - name: Upgrade all packages on servers
-      apt: upgrade=dist force_apt_get=yes
+  - name: Update APT package index
+    apt:
+      update_cache: yes
+
+  - name: Upgrade all APT packages
+    apt:
+      upgrade: dist
+
+  - name: Update resolv.conf to use 10.0.87.4
+    lineinfile:
+      path: /etc/resolv.conf
+      regexp: '^nameserver'
+      line: 'nameserver 10.0.87.4'
+      state: present
+
+  - name: Check if JumpCloud agent is installed
+    shell: dpkg -l | grep jumpcloud-agent
+    register: jumpcloud_installed
+    ignore_errors: yes
+
+  - name: Install JumpCloud agent
+    shell: |
+      curl --tlsv1.2 --silent --show-error --header 'x-connect-key: {{ jumpcloud_key }}' https://kickstart.jumpcloud.com/Kickstart | sudo bash
+    when: jumpcloud_installed.rc != 0
+
+  - name: Verify JumpCloud agent installation
+    shell: dpkg -l | grep jumpcloud-agent
+    register: jumpcloud_verification
+    ignore_errors: yes
+
+  - name: Fail if JumpCloud agent installation failed
+    fail:
+      msg: "JumpCloud agent installation failed."
+    when: jumpcloud_verification.rc != 0
