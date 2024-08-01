@@ -2,6 +2,8 @@
 - name: Update and Upgrade Ubuntu, update resolv.conf, and install JumpCloud Agent
   hosts: all
   become: yes
+  become_method: sudo
+  become_user: root
   vars:
     jumpcloud_key: "4234dc7eca06a138c9891acc7f40364bc82e149c"
   tasks:
