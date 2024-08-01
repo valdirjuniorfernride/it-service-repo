@@ -12,10 +12,6 @@
     apt:
       update_cache: yes
 
-  - name: Upgrade all APT packages
-    apt:
-      upgrade: dist
-
   - name: Update resolv.conf to use 10.0.87.4
     lineinfile:
       path: /etc/resolv.conf
@@ -23,22 +19,17 @@
       line: 'nameserver 10.0.87.4'
       state: present
 
-  - name: Check if JumpCloud agent is installed
-    shell: dpkg -l | grep jumpcloud-agent
-    register: jumpcloud_installed
-    ignore_errors: yes
-
   - name: Install JumpCloud agent
-    shell: |
-      curl --tlsv1.2 --silent --show-error --header 'x-connect-key: {{ jumpcloud_key }}' https://kickstart.jumpcloud.com/Kickstart | sudo bash
-    when: jumpcloud_installed.rc != 0
-
-  - name: Verify JumpCloud agent installation
-    shell: dpkg -l | grep jumpcloud-agent
-    register: jumpcloud_verification
-    ignore_errors: yes
-
-  - name: Fail if JumpCloud agent installation failed
-    fail:
-      msg: "JumpCloud agent installation failed."
-    when: jumpcloud_verification.rc != 0
+    tasks:
+    - name: Install curl package
+      action: apt pkg='curl' state=installed
+      when: "'$ansible_pkg_mgr' == 'apt'"
+    - name: Check if JumpCloud is already installed
+      shell: "[ -d /opt/jc ] && echo 'Found' || echo ''"
+      register: jc_installed
+    - name: Update time
+      shell: "ntpdate -u pool.ntp.org"
+      when: "not jc_installed.stdout"
+    - name: Install JumpCloud
+      shell: "curl --header 'x-connect-key: {{ jumpcloud_key }}' https://kickstart.jumpcloud.com/Kickstart | sudo bash"
+      when: "not jc_installed.stdout"
