@@ -1,0 +1,44 @@
+---
+- name: Ping all IP addresses and categorize the results
+  hosts: all
+  gather_facts: no
+
+  tasks:
+    - name: Ping the IP address
+      ping:
+
+    - name: Add successful ping to success group
+      add_host:
+        name: "{{ inventory_hostname }}"
+        groups: success
+      when: ping_result is success
+      vars:
+        ping_result: "{{ ansible_facts.ping_status == 'pong' }}"
+      register: ping_result
+
+    - name: Add failed ping to failed group
+      add_host:
+        name: "{{ inventory_hostname }}"
+        groups: failed
+      when: ping_result is failed
+      vars:
+        ping_result: "{{ ansible_facts.ping_status != 'pong' }}"
+      register: ping_result
+
+- name: Display successful pings
+  hosts: success
+  gather_facts: no
+
+  tasks:
+    - name: Show success message
+      debug:
+        msg: "Ping to {{ inventory_hostname }} was successful"
+
+- name: Display failed pings
+  hosts: failed
+  gather_facts: no
+
+  tasks:
+    - name: Show failure message
+      debug:
+        msg: "Ping to {{ inventory_hostname }} failed"
