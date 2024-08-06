@@ -6,24 +6,20 @@
   tasks:
     - name: Ping the IP address
       ping:
+      register: ping_result
+      ignore_errors: yes
 
     - name: Add successful ping to success group
       add_host:
         name: "{{ inventory_hostname }}"
         groups: success
-      when: ping_result is success
-      vars:
-        ping_result: "{{ ansible_facts.ping_status == 'pong' }}"
-      register: ping_result
+      when: ping_result is succeeded
 
     - name: Add failed ping to failed group
       add_host:
         name: "{{ inventory_hostname }}"
         groups: failed
       when: ping_result is failed
-      vars:
-        ping_result: "{{ ansible_facts.ping_status != 'pong' }}"
-      register: ping_result
 
 - name: Display successful pings
   hosts: success
