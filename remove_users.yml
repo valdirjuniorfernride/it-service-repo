@@ -1,0 +1,21 @@
+- name: Ensure users are removed from the system
+  hosts: all
+  gather_facts: false
+  become: true
+  vars:
+    developers_username:
+    - testuser
+
+  tasks:
+  - name: Remove users
+    ansible.builtin.user:
+      name: "{{ item }}"
+      state: absent
+      remove: false
+    loop: "{{ developers_username }}"
+
+  - name: Remove ssh directory
+    ansible.builtin.file:
+      state: absent
+      path: /home/{{ item }}/.ssh
+    loop: "{{ developers_username }}"
