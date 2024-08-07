@@ -7,14 +7,9 @@
       - testuser
 
   tasks:
-    - name: Get the current logged-in user (or primary user)
-      ansible.builtin.command: "logname"
-      register: current_user_result
-      ignore_errors: yes
-
-    - name: Set fact for the current user
+    - name: Gather current user from environment
       ansible.builtin.set_fact:
-        current_user: "{{ current_user_result.stdout }}"
+        current_user: "{{ ansible_facts['env']['USER'] }}"
 
     - name: Debug - show current user
       ansible.builtin.debug:
@@ -34,4 +29,3 @@
         path: /home/{{ item }}/.ssh
       loop: "{{ developers_username }}"
       when: item != current_user  # Skip the current primary user's .ssh directory
-
