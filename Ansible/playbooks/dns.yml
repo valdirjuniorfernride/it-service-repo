@@ -1,5 +1,5 @@
 ---
-- name: Update and Upgrade Ubuntu, update resolv.conf, and install JumpCloud Agent
+- name: Update resolv.conf file
   hosts: all
   become: yes
   become_method: sudo
