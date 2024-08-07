@@ -4,7 +4,7 @@
   become: true
   vars:
     developers_username:
-      - it-services
+      - testuser
 
   tasks:
     - name: Gather current user from environment
