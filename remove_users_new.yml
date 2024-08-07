@@ -14,7 +14,7 @@
 
     - name: Set fact for the current user
       ansible.builtin.set_fact:
-        current_user: "{{ current_user_result.stdout if current_user_result.stdout != '' else 'nobody' }}"
+        current_user: "{{ current_user_result }}"
 
     - name: Debug - show current user
       ansible.builtin.debug:
