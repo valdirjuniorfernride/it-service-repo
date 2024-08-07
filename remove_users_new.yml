@@ -1,0 +1,37 @@
+- name: Ensure users are removed from the system
+  hosts: all
+  gather_facts: true
+  become: true
+  vars:
+    developers_username:
+      - testuser
+
+  tasks:
+    - name: Get the current logged-in user (or primary user)
+      ansible.builtin.command: "logname"
+      register: current_user_result
+      ignore_errors: yes
+
+    - name: Set fact for the current user
+      ansible.builtin.set_fact:
+        current_user: "{{ current_user_result.stdout if current_user_result.stdout != '' else 'nobody' }}"
+
+    - name: Debug - show current user
+      ansible.builtin.debug:
+        msg: "Current user is {{ current_user }}"
+
+    - name: Remove users
+      ansible.builtin.user:
+        name: "{{ item }}"
+        state: absent
+        remove: false
+      loop: "{{ developers_username }}"
+      when: item != current_user  # Skip the current primary user
+
+    - name: Remove ssh directory
+      ansible.builtin.file:
+        state: absent
+        path: /home/{{ item }}/.ssh
+      loop: "{{ developers_username }}"
+      when: item != current_user  # Skip the current primary user's .ssh directory
+
