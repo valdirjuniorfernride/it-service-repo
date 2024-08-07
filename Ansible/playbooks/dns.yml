@@ -5,9 +5,6 @@
   become_method: sudo
   become_user: root
   tasks:
-    - name: Update APT package index
-      apt:
-        update_cache: yes
     - name: Update resolv.conf
       lineinfile:
         path: /etc/resolv.conf
