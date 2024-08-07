@@ -1,0 +1,7 @@
+# playbooks
+- name: Installing MDM Agent
+  import_playbook: ../Ansible/playbooks/mdm.yml
+- name: Updating DNS resolve file
+  import_playbook: ../Ansible/playbooks/dns.yml
+- name: Remove Users (will be managed by Jumpcloud)
+  import_playbook: ../Ansible/playbooks/remove_users.yml
