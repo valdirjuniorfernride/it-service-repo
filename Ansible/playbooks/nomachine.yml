@@ -1,6 +1,6 @@
 ---
 - name: Setup Virtual Display with Dummy Driver on Ubuntu Server
-  hosts: ubuntu_server
+  hosts: all
   become: true
   tasks:
 
