@@ -50,6 +50,9 @@
       notify:
         - Restart display manager
 
+    - name: Restart NoMachine service
+      command: sudo /etc/NX/nxserver --restart
+
   handlers:
     - name: Restart display manager
       systemd:
