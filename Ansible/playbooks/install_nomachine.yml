@@ -1,0 +1,31 @@
+---
+- name: Install NoMachine on Ubuntu
+  hosts: all
+  become: true
+  tasks:
+
+    - name: Install wget for downloading files
+      apt:
+        name: wget
+        state: present
+        update_cache: yes
+
+    - name: Download NoMachine TAR.GZ package
+      command: wget https://download.nomachine.com/download/8.13/Linux/nomachine_8.13.1_1_x86_64.tar.gz -P /usr/
+
+    - name: Extract NoMachine TAR.GZ package
+      command: tar zxvf /usr/nomachine_8.13.1_1_x86_64.tar.gz -C /usr/
+
+    - name: Install NoMachine
+      command: /usr/NX/nxserver --install
+
+    - name: Ensure NoMachine service is enabled and started
+      systemd:
+        name: nxserver.service
+        state: started
+        enabled: yes
+
+    - name: Clean up NoMachine TAR.GZ package
+      file:
+        path: /usr/nomachine_8.13.1_1_x86_64.tar.gz
+        state: absent
