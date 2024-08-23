@@ -1,16 +1,21 @@
 ---
-- name: Update resolv.conf file
+- name: Update DNS settings in resolved.conf
   hosts: all
   become: yes
-  become_method: sudo
-  become_user: root
+
   tasks:
-    - name: Update resolv.conf
+    - name: Append DNS settings to resolved.conf
       lineinfile:
-        path: /etc/resolv.conf
-        regexp: ^nameserver
-        line: nameserver 10.0.87.4
-        line: nameserver 8.8.8.8
-        line: nameserver 172.16.200.1
-        line: nameserver 172.16.100.1
-        state: present
+        path: /etc/systemd/resolved.conf
+        line: "{{ item }}"
+        create: yes
+      loop:
+        - "DNS=10.0.87.4"
+        - "FallbackDNS=8.8.8.8"
+      notify: Restart systemd-resolved
+
+  handlers:
+    - name: Restart systemd-resolved
+      service:
+        name: systemd-resolved
+        state: restarted
